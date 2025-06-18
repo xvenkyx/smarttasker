@@ -1,0 +1,75 @@
+# === Node.js ===
+**/node_modules/
+**/npm-debug.log
+**/yarn-error.log
+**/.npm/
+**/package-lock.json
+**/yarn.lock
+
+# === Python ===
+**/__pycache__/
+**/*.py[cod]
+**/*.pyo
+**/*.pyd
+**/.pytest_cache/
+**/.mypy_cache/
+**/env/
+**/venv/
+**/.venv/
+**/.DS_Store
+
+# === Django ===
+**/db.sqlite3
+**/media/
+**/staticfiles/
+**/*.log
+
+# === FastAPI ===
+**/.coverage
+**/.tox/
+**/htmlcov/
+
+# === React/Vite Frontend ===
+**/build/
+**/dist/
+**/.vite/
+**/.cache/
+**/coverage/
+**/src/.env
+
+# === Docker & Compose ===
+**/docker-compose.override.yml
+**/.env
+**/*.env
+**/.env.local
+**/.env.*.local
+
+# === Logs ===
+**/logs/
+**/*.log
+
+# === Redis ===
+**/dump.rdb
+
+# === Kafka ===
+**/kafka-logs/
+**/zookeeper-logs/
+
+# === VSCode ===
+.vscode/
+
+# === PyCharm ===
+.idea/
+
+# === OS Specific ===
+Thumbs.db
+.DS_Store
+
+# === Test & Coverage ===
+**/coverage/
+**/.pytest_cache/
+**/jest-coverage/
+**/test-results/
+
+# === Kubernetes ===
+**/k8s-tmp/
