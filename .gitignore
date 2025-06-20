@@ -53,7 +53,7 @@
 
 # === Kafka ===
 **/kafka-logs/
-**/zookeeper-logs/
+**/zookeeper-logs/ 
 
 # === VSCode ===
 .vscode/
