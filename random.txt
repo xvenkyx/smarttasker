@@ -1,0 +1,15 @@
+
+
+promise -
+
+
+
+resolve
+reject
+
+
+jwt  = x.x.x
+
+encrypt
+
+decrypt

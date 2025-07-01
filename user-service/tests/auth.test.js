@@ -57,4 +57,4 @@ describe('Auth Routes', () => {
     expect(res.statusCode).toBe(200);
     expect(res.body.token).toBeDefined();
   });
-});
+})
