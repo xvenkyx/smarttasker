@@ -140,3 +140,5 @@ REST_FRAMEWORK = {
 }
 
 JWT_SECRET = os.getenv('JWT_SECRET', 'supersecurejwtkey')
+
+KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')
