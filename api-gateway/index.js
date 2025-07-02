@@ -8,7 +8,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 🔐 Middleware to forward JWT token
+// 🔐 Forward JWT token if present
 app.use((req, res, next) => {
   const token = req.headers["authorization"];
   if (token) {
@@ -17,13 +17,28 @@ app.use((req, res, next) => {
   next();
 });
 
+// 🧭 Debug log
+app.use((req, res, next) => {
+  console.log("👉 Gateway received:", req.method, req.url);
+  next();
+});
+
 // 🧭 User service proxy
 app.use(
-  "/api/users",
+  "/api/auth",
   createProxyMiddleware({
-    target: "http://user-service:5001",
+    target: "http://smarttasker-user-service:5001",
     changeOrigin: true,
-    pathRewrite: { "^/api/users": "" },
+    pathRewrite: {
+      "^/api/auth": "/api/auth", // ✅ preserve full path
+    },
+    onProxyReq: (proxyReq, req, res) => {
+      console.log("🔁 Proxying request to user-service:", req.method, req.url);
+    },
+    onError: (err, req, res) => {
+      console.error("❌ Proxy error (user-service):", err.message);
+      res.status(500).send("User Service unavailable");
+    },
   })
 );
 
@@ -31,18 +46,27 @@ app.use(
 app.use(
   "/api/tasks",
   createProxyMiddleware({
-    target: "http://task-service:8000",
+    target: "http://smarttasker-task-service:8000",
     changeOrigin: true,
-    pathRewrite: { "^/api/tasks": "" },
+    pathRewrite: {
+      "^/api/tasks": "/api/tasks", // ✅ preserve full path
+    },
+    onProxyReq: (proxyReq, req, res) => {
+      console.log("🔁 Proxying request to task-service:", req.method, req.url);
+    },
+    onError: (err, req, res) => {
+      console.error("❌ Proxy error (task-service):", err.message);
+      res.status(500).send("Task Service unavailable");
+    },
   })
 );
 
 // ✅ Healthcheck route
 app.get("/", (req, res) => {
-  res.send("API Gateway is running 🚀");
+  res.send("🛡️ API Gateway is running");
 });
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-  console.log(`🌐 API Gateway listening on port ${PORT}`);
+  console.log(`🚀 API Gateway listening on port ${PORT}`);
 });
