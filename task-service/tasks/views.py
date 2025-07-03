@@ -10,8 +10,7 @@ class TaskViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         task = serializer.save()
-        send_task_event('task.created', TaskSerializer(task).data)
-        
+        send_task_event('task.created', TaskSerializer(task).data)      
 
     def perform_update(self, serializer):
         task = serializer.save()

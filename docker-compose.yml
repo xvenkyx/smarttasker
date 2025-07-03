@@ -1,9 +1,12 @@
 version: "3.8"
 services:
   user-service:
+    container_name: user-service  # ✅ strongly recommend setting this
     build: ./user-service
     ports:
       - "5001:5001"
+    expose:
+      - "5001"
     env_file: .env
     depends_on:
       - mongo

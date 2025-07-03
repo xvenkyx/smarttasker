@@ -27,20 +27,23 @@ app.use((req, res, next) => {
 app.use(
   "/api/auth",
   createProxyMiddleware({
-    target: "http://smarttasker-user-service:5001",
+    target: "http://user-service:5001",
     changeOrigin: true,
-    pathRewrite: {
-      "^/api/auth": "/api/auth", // ✅ preserve full path
-    },
+    pathRewrite: { "^/api/auth": "/api/auth" },
+    selfHandleResponse: false, // ✅ let the proxy pass response directly
     onProxyReq: (proxyReq, req, res) => {
-      console.log("🔁 Proxying request to user-service:", req.method, req.url);
+      console.log("🔁 Proxying to user-service:", req.method, req.url);
+    },
+    onProxyRes: (proxyRes, req, res) => {
+      console.log(`✅ user-service responded with status: ${proxyRes.statusCode}`);
     },
     onError: (err, req, res) => {
-      console.error("❌ Proxy error (user-service):", err.message);
+      console.error("❌ Proxy error:", err.message);
       res.status(500).send("User Service unavailable");
-    },
+    }
   })
 );
+
 
 // 📋 Task service proxy
 app.use(

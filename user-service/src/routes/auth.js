@@ -7,18 +7,22 @@ const { model } = require('mongoose');
 const router = express.Router();
 
 // Register
-router.post('/register',async (req, res) => {
+router.post('/register', async (req, res) => {
+  console.log("🔥 REGISTER HIT!");
   const { name, email, password, role } = req.body;
-  const hashedPassword = await bcrypt.hash(password, 10);
- 
+
   try {
+    const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({ name, email, password: hashedPassword, role });
     await user.save();
-    res.status(201).json({ message: 'User registered.' }); 
+    console.log("✅ User saved successfully");
+    res.status(201).json({ message: 'User registered.' });
   } catch (err) {
+    console.error("❌ Error saving user:", err.message);
     res.status(400).json({ error: err.message });
   }
 });
+
 
 // Login
 router.post('/login', async (req, res) => {

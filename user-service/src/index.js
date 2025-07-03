@@ -15,6 +15,11 @@ app.use(express.json());
 
 app.use('/api/auth', authRoutes);
 
+app.get("/api/auth/ping", (req, res) => {
+  console.log("🔔 Pinged");
+  res.json({ message: "pong" });
+});
+
 const PORT = process.env.PORT || 5001;
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
