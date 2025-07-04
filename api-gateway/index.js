@@ -2,11 +2,18 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import { createProxyMiddleware } from "http-proxy-middleware";
+import bodyParser from "body-parser";
 
 dotenv.config();
 const app = express();
 app.use(cors());
-app.use(express.json());
+
+// ✅ Use body-parser with a raw body capture
+app.use(bodyParser.json({
+  verify: (req, res, buf) => {
+    req.rawBody = buf;
+  }
+}));
 
 // 🔐 Forward JWT token if present
 app.use((req, res, next) => {
@@ -23,48 +30,53 @@ app.use((req, res, next) => {
   next();
 });
 
-// 🧭 User service proxy
+// 🧭 User service proxy (clean + raw body)
 app.use(
   "/api/auth",
   createProxyMiddleware({
     target: "http://user-service:5001",
     changeOrigin: true,
     pathRewrite: { "^/api/auth": "/api/auth" },
-    selfHandleResponse: false, // ✅ let the proxy pass response directly
     onProxyReq: (proxyReq, req, res) => {
-      console.log("🔁 Proxying to user-service:", req.method, req.url);
+      if (req.rawBody) {
+        proxyReq.setHeader("Content-Length", req.rawBody.length);
+        proxyReq.write(req.rawBody);
+      }
     },
     onProxyRes: (proxyRes, req, res) => {
       console.log(`✅ user-service responded with status: ${proxyRes.statusCode}`);
     },
     onError: (err, req, res) => {
-      console.error("❌ Proxy error:", err.message);
+      console.error("❌ Proxy error (user-service):", err.message);
       res.status(500).send("User Service unavailable");
     }
   })
 );
 
-
-// 📋 Task service proxy
+// 📋 Task service proxy (use same raw body logic if POSTs are sent here)
 app.use(
   "/api/tasks",
   createProxyMiddleware({
-    target: "http://smarttasker-task-service:8000",
+    target: "http://task-service:8000",
     changeOrigin: true,
-    pathRewrite: {
-      "^/api/tasks": "/api/tasks", // ✅ preserve full path
-    },
+    pathRewrite: { "^/api/tasks": "/tasks" },
     onProxyReq: (proxyReq, req, res) => {
-      console.log("🔁 Proxying request to task-service:", req.method, req.url);
+      if (req.rawBody) {
+        proxyReq.setHeader("Content-Length", req.rawBody.length);
+        proxyReq.write(req.rawBody);
+      }
+    },
+    onProxyRes: (proxyRes, req, res) => {
+      console.log(`✅ task-service responded with status: ${proxyRes.statusCode}`);
     },
     onError: (err, req, res) => {
       console.error("❌ Proxy error (task-service):", err.message);
       res.status(500).send("Task Service unavailable");
-    },
+    }
   })
 );
 
-// ✅ Healthcheck route
+// ✅ Healthcheck
 app.get("/", (req, res) => {
   res.send("🛡️ API Gateway is running");
 });

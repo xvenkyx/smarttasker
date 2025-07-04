@@ -1,78 +1,66 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+const Login: React.FC = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-
+  const handleLogin = async () => {
+    setError("");
     try {
-      // const res = await fetch('http://localhost:5001/api/auth/login', {
-      const res = await fetch('http://localhost:8080/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+      const res = await fetch("http://localhost:8080/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
+      if (res.ok) {
+        localStorage.setItem("token", data.token);
+        const payload = JSON.parse(atob(data.token.split(".")[1]));
+        const role = payload.role;
 
-      if (!res.ok) {
-        setError(data.message || 'Invalid credentials');
-        return;
+        if (role === "admin") {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/tasks");
+        }
+      } else {
+        setError(data.error || "Login failed");
       }
-
-      localStorage.setItem('token', data.token);
-
-      // Redirect based on role (optional)
-      data.role === 'admin' ? navigate('/admin') : navigate('/tasks');
-
     } catch (err) {
-      setError('Network error. Try again.');
+      setError("Login failed");
     }
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-100">
-      <form
-        onSubmit={handleLogin}
-        className="bg-white p-6 rounded shadow-md w-96 space-y-4"
+    <div className="max-w-md mx-auto mt-10 space-y-4">
+      <h2 className="text-2xl font-bold">Login</h2>
+      <input
+        type="email"
+        placeholder="Email"
+        className="w-full border px-3 py-2 rounded"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        className="w-full border px-3 py-2 rounded"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      {error && <p className="text-red-500">{error}</p>}
+      <button
+        className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
+        onClick={handleLogin}
       >
-        <h2 className="text-2xl font-semibold text-center text-blue-600">Login</h2>
-
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="w-full px-3 py-2 border rounded"
-        />
-
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className="w-full px-3 py-2 border rounded"
-        />
-
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
-        >
-          Login
-        </button>
-      </form>
+        Login
+      </button>
     </div>
   );
-}
+};
 
 export default Login;

@@ -6,6 +6,12 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
+# Copy the wait script into the container
+COPY wait_for_db.sh /app/wait_for_db.sh
+
+# Make it executable
+RUN chmod +x /app/wait_for_db.sh
+
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 

@@ -20,6 +20,11 @@ app.get("/api/auth/ping", (req, res) => {
   res.json({ message: "pong" });
 });
 
+app.post("/api/auth/echo", (req, res) => {
+  console.log("📦 Received body:", req.body);
+  res.json({ received: req.body });
+});
+
 const PORT = process.env.PORT || 5001;
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
