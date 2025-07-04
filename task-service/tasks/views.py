@@ -17,6 +17,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         task = serializer.save()
         print(f"✅ New task created with ID: {task.id}")
         send_task_event('task.created', TaskSerializer(task).data)      
+        send_task_event('task.created', TaskSerializer(task).data)
 
     def perform_update(self, serializer):
         task = serializer.save()

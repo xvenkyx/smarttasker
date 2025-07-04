@@ -23,6 +23,17 @@ for attempt in range(retries):
 if not producer:
     print("Could not connect to Kafka after retries.")
 
+        print("✅ Connected to Kafka.")
+        break
+    except NoBrokersAvailable:
+        print(f"⏳ Kafka not available yet... retrying ({attempt + 1}/{retries})")
+        time.sleep(3)
+
+if not producer:
+    print("❌ Could not connect to Kafka after retries.")
+
+
+# ✅ This was missing!
 def send_task_event(event_type, task_data):
     if producer:
         message = {
@@ -34,3 +45,8 @@ def send_task_event(event_type, task_data):
         producer.flush()
     else:
         print("Kafka producer is not available — event not sent.")
+        print("📤 Sending to Kafka:", message)
+        producer.send('task-events', message)
+        producer.flush()
+    else:
+        print("❌ Kafka producer is not available — event not sent.")
