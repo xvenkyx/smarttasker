@@ -10,8 +10,8 @@ interface Task {
 
 const UserTasks: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
-  //const [email, setEmail] = useState<string>("");
-  //const [role, setRole] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [role, setRole] = useState<string>("");
 
   const getUserFromToken = () => {
     const token = localStorage.getItem("token");
@@ -59,6 +59,7 @@ const UserTasks: React.FC = () => {
 
   return (
     <div className="p-6">
+      <h2 className="text-md text-gray-600 mb-2">Logged in as: {email} ({role})</h2>
       <h1 className="text-2xl font-bold mb-4">🧑‍💻 My Tasks</h1>
 
       <table className="min-w-full table-auto border border-gray-300 rounded-xl">
