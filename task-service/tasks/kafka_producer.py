@@ -14,6 +14,15 @@ for attempt in range(retries):
             bootstrap_servers=settings.KAFKA_BROKER,
             value_serializer=lambda v: json.dumps(v).encode('utf-8')
         )
+        print("Connected to Kafka.")
+        break
+    except NoBrokersAvailable:
+        print(f"Kafka not available yet... retrying ({attempt + 1}/{retries})")
+        time.sleep(3)
+
+if not producer:
+    print("Could not connect to Kafka after retries.")
+
         print("✅ Connected to Kafka.")
         break
     except NoBrokersAvailable:
@@ -31,6 +40,11 @@ def send_task_event(event_type, task_data):
             'event': event_type,
             'data': task_data
         }
+        print("Sending to Kafka:", message)
+        producer.send('task-events', message)
+        producer.flush()
+    else:
+        print("Kafka producer is not available — event not sent.")
         print("📤 Sending to Kafka:", message)
         producer.send('task-events', message)
         producer.flush()

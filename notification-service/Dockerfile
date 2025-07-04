@@ -1,5 +1,10 @@
-FROM python:3.11
+FROM node:18
+
 WORKDIR /app
+
+COPY package*.json ./
+RUN npm install --production
+
 COPY . .
-RUN pip install -r requirements.txt
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8002"]
+
+CMD ["node", "src/index.js"]

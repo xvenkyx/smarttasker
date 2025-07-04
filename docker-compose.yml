@@ -1,9 +1,12 @@
 version: "3.8"
 services:
   user-service:
+    container_name: user-service  # ✅ strongly recommend setting this
     build: ./user-service
     ports:
       - "5001:5001"
+    expose:
+      - "5001"
     env_file: .env
     depends_on:
       - mongo
@@ -17,6 +20,11 @@ services:
     ports:
       - "8000:8000"
     env_file: .env
+    command: >
+      sh -c "./wait_for_db.sh &&
+            python manage.py migrate --noinput &&
+            python manage.py runserver 0.0.0.0:8000"
+
     depends_on:
       - postgres
       - kafka
@@ -55,6 +63,8 @@ services:
     image: mongo:6
     ports:
       - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
     networks:
       - smarttasker-net
 
@@ -66,6 +76,8 @@ services:
       POSTGRES_PASSWORD: taskpass
     ports:
       - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - smarttasker-net
 
@@ -84,6 +96,35 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - "2181:2181"
+
+    networks:
+      - smarttasker-net
+
+
+  kafka:
+    image: confluentinc/cp-kafka:7.3.0
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+    volumes:
+      - kafka_data:/bitnami/kafka
+    depends_on:
+      - zookeeper
+    networks:
+      - smarttasker-net
+
+volumes:
+  mongo_data:
+  postgres_data:
+  kafka_data:
+
     networks:
       - smarttasker-net
 
@@ -102,6 +143,7 @@ services:
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     networks:
       - smarttasker-net
+
 
 
 

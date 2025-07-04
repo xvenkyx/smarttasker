@@ -26,7 +26,11 @@ SECRET_KEY = 'django-insecure-kgq3l5@ggof@%5&&k&20a7un%^s%p#d2mpjhq^(ia9mtn6)08w
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "task-service",  # 👈 Add this
+]
 
 
 # Application definition
@@ -137,8 +141,17 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+    ],
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
+    'UNAUTHENTICATED_USER': None,
 }
 
 JWT_SECRET = os.getenv('JWT_SECRET', 'supersecurejwtkey')
-
 KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')
+
+APPEND_SLASH = False  # 🔥 disables auto-redirect to `/` version
