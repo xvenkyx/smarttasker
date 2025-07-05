@@ -8,7 +8,7 @@ const authRoutes = require('./routes/auth');
 const app = express();
 // In Express backend (user-service)
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: ['http://localhost:5173','https://smarttasker-ten.vercel.app'],
   credentials: true,
 }));
 app.use(express.json());
